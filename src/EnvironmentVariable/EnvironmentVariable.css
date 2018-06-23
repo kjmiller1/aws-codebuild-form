@@ -1,0 +1,12 @@
+.EnvironmentVariable{
+    padding: 10px;
+}
+.EnvironmentVariable .label{
+    display: inline-block;
+    width: 30%;
+    padding-right: 2em;
+    text-align: right;
+}
+.EnvironmentVariable input{
+    width: 60%;
+}

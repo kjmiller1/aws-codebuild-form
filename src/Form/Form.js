@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import SubmitButton from '../SubmitButton/SubmitButton.js';
 import TextInput from '../TextInput/TextInput.js';
+import EnvironmentVariable from '../EnvironmentVariable/EnvironmentVariable.js';
 import getSourceVersion from './getSourceVersion.js';
 import getParameterByName from './getParameterByName.js';
 import startCodeBuild from './startCodeBuild.js';
@@ -12,7 +13,8 @@ class Form extends Component {
         this.state = {
             region: getParameterByName("region", window.location.href),
             projectName: getParameterByName("projectName", window.location.href),
-            sourceVersion : getSourceVersion(window.location.href)
+            sourceVersion : getSourceVersion(window.location.href),
+            environmentVariables: JSON.parse(getParameterByName("environmentVariables", window.location.href) || "{}"),
         };
     }
     onAccessKeyChange(value){
@@ -75,6 +77,37 @@ class Form extends Component {
                         name="sourceVersion" 
                         value={this.state.sourceVersion} 
                         onChange={(event) => this.setState({sourceVersion: event.target.value})} />
+                </fieldset>
+                <fieldset>
+                    <legend>Environment Variables:</legend>
+                    {Object.keys(this.state.environmentVariables).map((key, index) => 
+                        <EnvironmentVariable 
+                            name={key} 
+                            value={this.state.environmentVariables[key]} 
+                            onNameChange={(event) => {
+                                let stateChange = this.state.environmentVariables;
+                                const currentValue = stateChange[key];
+                                delete stateChange[key];
+                                stateChange[event.target.value] = currentValue;
+                                this.setState({ environmentVariables: stateChange});
+                            }}
+                            onValueChange={(event) => {
+                                let stateChange = this.state.environmentVariables;
+                                stateChange[key] = event.target.value;
+                                this.setState({ environmentVariables: stateChange});
+                            }} />
+                        )}
+                    <EnvironmentVariable 
+                            onNameChange={(event) => {
+                                let stateChange = this.state.environmentVariables;
+                                stateChange[event.target.value] = "";
+                                this.setState({ environmentVariables: stateChange});
+                            }}
+                            onValueChange={(event) => {
+                                let stateChange = this.state.environmentVariables;
+                                stateChange["new"] = event.target.value;
+                                this.setState({ environmentVariables: stateChange});
+                            }} />
                 </fieldset>
                 <SubmitButton title="Start Build" onClick={() => this.startBuild()} />
                 <span style={{ color: "#C0C0C0" }} >
