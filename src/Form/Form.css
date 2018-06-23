@@ -1,0 +1,11 @@
+.Form{
+    padding: 1em;
+}
+.Form fieldset{
+    padding: 1em;
+    margin-top: 1em;
+    max-width: 50em;
+    width:100%;
+    margin-left: auto;
+    margin-right: auto;
+}
