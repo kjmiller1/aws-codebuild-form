@@ -43,7 +43,8 @@ class Form extends Component {
             this.state.sessionToken,
             this.state.region,
             this.state.projectName,
-            this.state.sourceVersion);
+            this.state.sourceVersion,
+            this.state.environmentVariables);
     }
     render(){
         let addEnvironmentVariableButton = "";
