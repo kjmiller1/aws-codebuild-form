@@ -97,17 +97,11 @@ class Form extends Component {
                                 this.setState({ environmentVariables: stateChange});
                             }} />
                         )}
-                    <EnvironmentVariable 
-                            onNameChange={(event) => {
-                                let stateChange = this.state.environmentVariables;
-                                stateChange[event.target.value] = "";
-                                this.setState({ environmentVariables: stateChange});
-                            }}
-                            onValueChange={(event) => {
-                                let stateChange = this.state.environmentVariables;
-                                stateChange["new"] = event.target.value;
-                                this.setState({ environmentVariables: stateChange});
-                            }} />
+                    <a onClick={() => {
+                        let stateChange = this.state.environmentVariables;
+                        stateChange[""] = "";
+                        this.setState({ environmentVariables: stateChange});
+                    }}>Add Environment Variable</a>
                 </fieldset>
                 <SubmitButton title="Start Build" onClick={() => this.startBuild()} />
                 <span style={{ color: "#C0C0C0" }} >
