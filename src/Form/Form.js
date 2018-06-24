@@ -67,7 +67,9 @@ class Form extends Component {
         link += this.convertParameterToQueryString("region",this.state.region);
         link += this.convertParameterToQueryString("projectName",this.state.projectName);
         link += this.convertParameterToQueryString("sourceVersion", this.state.sourceVersion);
-        link += this.convertParameterToQueryString("environmentVariables", JSON.stringify(this.state.environmentVariables));
+        let environmentVariablesCopy = this.state.environmentVariables;
+        delete environmentVariablesCopy[""];
+        link += this.convertParameterToQueryString("environmentVariables", JSON.stringify(environmentVariablesCopy));
         return link;
     }
     convertParameterToQueryString(parameterName, parameterValue){
