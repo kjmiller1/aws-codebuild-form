@@ -4,8 +4,8 @@
 .EnvironmentVariable .label{
     display: inline-block;
     width: 30%;
-    padding-right: 2em;
     text-align: right;
+    margin-right:2em;
 }
 .EnvironmentVariable input{
     width: 60%;

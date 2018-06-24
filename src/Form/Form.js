@@ -46,6 +46,14 @@ class Form extends Component {
             this.state.sourceVersion);
     }
     render(){
+        let addEnvironmentVariableButton = "";
+        if(!this.state.environmentVariables.hasOwnProperty("")){
+            addEnvironmentVariableButton = <a onClick={() => {
+                let stateChange = this.state.environmentVariables;
+                stateChange[""] = "";
+                this.setState({ environmentVariables: stateChange});
+            }}>Add Environment Variable</a>;
+        }
         return (
             <form className="Form" onSubmit={ () => false }>
                 <fieldset>
@@ -62,13 +70,13 @@ class Form extends Component {
                         name="sessionToken" 
                         value={this.state.sessionToken} 
                         onChange={(event) => this.setState({sessionToken: event.target.value})} />
+                </fieldset>
+                <fieldset>
+                    <legend>Basic Code Build Parameters:</legend>
                     <TextInput 
                         name="region" 
                         value={this.state.region} 
                         onChange={(event) => this.setState({region: event.target.value})} />
-                </fieldset>
-                <fieldset>
-                    <legend>Basic Code Build Parameters:</legend>
                     <TextInput 
                         name="projectName" 
                         value={this.state.projectName} 
@@ -97,11 +105,8 @@ class Form extends Component {
                                 this.setState({ environmentVariables: stateChange});
                             }} />
                         )}
-                    <a onClick={() => {
-                        let stateChange = this.state.environmentVariables;
-                        stateChange[""] = "";
-                        this.setState({ environmentVariables: stateChange});
-                    }}>Add Environment Variable</a>
+                    {addEnvironmentVariableButton}
+                    
                 </fieldset>
                 <SubmitButton title="Start Build" onClick={() => this.startBuild()} />
                 <span style={{ color: "#C0C0C0" }} >
