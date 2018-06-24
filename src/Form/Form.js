@@ -62,6 +62,21 @@ class Form extends Component {
             this.state.sourceVersion,
             this.state.environmentVariables);
     }
+    getLinkFromState(){
+        let link = window.location.href.split("?")[0] + "?";
+        link += this.convertParameterToQueryString("region",this.state.region);
+        link += this.convertParameterToQueryString("projectName",this.state.projectName);
+        link += this.convertParameterToQueryString("sourceVersion", this.state.sourceVersion);
+        link += this.convertParameterToQueryString("environmentVariables", JSON.stringify(this.state.environmentVariables));
+        return link;
+    }
+    convertParameterToQueryString(parameterName, parameterValue){
+        if(parameterValue !== null && parameterValue !== undefined && parameterValue.length > 0){
+            return parameterName + "=" + encodeURIComponent(parameterValue) + "&";
+        }else{
+            return "";
+        }
+    }
     render(){
         let addEnvironmentVariableButton = "";
         if(!this.state.environmentVariables.hasOwnProperty("")){
@@ -123,9 +138,9 @@ class Form extends Component {
                             }} />
                         )}
                     {addEnvironmentVariableButton}
-                    
                 </fieldset>
                 <SubmitButton title="Start Build" onClick={() => this.startBuild()} />
+                <div><a href={this.getLinkFromState()}>{this.getLinkFromState()}</a></div>
                 <span style={{ color: "#C0C0C0" }} >
                     document.referrer to parse: <br/>
                     {"\"" + document.referrer + "\""}
