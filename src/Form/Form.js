@@ -20,14 +20,30 @@ class Form extends Component {
     onAccessKeyChange(value){
         
         const splitValue = value.split(" ");
-        if(splitValue.length === 8){
-            // alert("new accessKeyId:" + splitValue[1].split("=")[1]);
-            // alert("new secretAccessKey:" + splitValue[4].split("=")[1]);
-            this.setState({
-                accessKeyId: splitValue[1].split("=")[1],
-                secretAccessKey: splitValue[4].split("=")[1],
-                sessionToken: splitValue[7].split("=", 2)[1]
+        if(splitValue.length !== 1){
+            let newState = {};
+            splitValue.forEach(element => {
+                const splitElement = element.split("=",2);
+                if(splitElement.length > 1){
+                    switch (splitElement[0]) {
+                        case "AWS_ACCESS_KEY_ID":
+                            newState.accessKeyId = splitElement[1];    
+                            break;
+                        case "AWS_SECRET_ACCESS_KEY":
+                            newState.secretAccessKey = splitElement[1];    
+                            break;
+                        case "AWS_SESSION_TOKEN":
+                            newState.sessionToken = splitElement[1];    
+                            break;
+                        case "AWS_DEFAULT_REGION":
+                            newState.region = splitElement[1];    
+                            break;
+                        default:
+                            break;
+                    }
+                }
             });
+            this.setState(newState);
         }else{
             this.setState({
                 accessKeyId: value
