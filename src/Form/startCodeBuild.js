@@ -26,7 +26,7 @@ export default function startCodeBuild(
         region: region
     });
     codeBuild.startBuild(
-        getParams(projectName, sourceVersion, environmentVariablesOverride),
+        getParams(projectName, sourceVersion, environmentVariablesOverride.filter((value,index) => value.hasOwnProperty("name") && value.name !== null  && value.name.length > 0)),
         (err, data) => {
             if (err){ onError(err); }
             else{ onSuccess(data); }
