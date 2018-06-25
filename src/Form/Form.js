@@ -6,19 +6,25 @@ import getSourceVersion from './getSourceVersion.js';
 import getParameterByName from './getParameterByName.js';
 import startCodeBuild from './startCodeBuild.js';
 import './Form.css';
+import { debug } from 'util';
 
 class Form extends Component {
     constructor(props){
         super(props);
+
+        const saveToLocalStorage = localStorage.getItem("saveToLocalStorage") || "false";
         this.state = {
             region: getParameterByName("region", window.location.href),
             projectName: getParameterByName("projectName", window.location.href),
             sourceVersion : getSourceVersion(window.location.href),
             environmentVariablesOverride: JSON.parse(getParameterByName("environmentVariablesOverride", window.location.href) || "[]"),
+            accessKeyId: (saveToLocalStorage === "true" && localStorage.getItem("accessKeyId")) || "",
+            secretAccessKey: (saveToLocalStorage === "true" && localStorage.getItem("secretAccessKey")) || "",
+            sessionToken: (saveToLocalStorage === "true" && localStorage.getItem("sessionToken")) || "",
+            saveToLocalStorage: saveToLocalStorage
         };
     }
     onAccessKeyChange(value){
-        
         const splitValue = value.split(" ");
         if(splitValue.length !== 1){
             let newState = {};
@@ -52,8 +58,8 @@ class Form extends Component {
     }
     startBuild(){
         startCodeBuild(
-            (err) => alert(JSON.stringify(err)),
-            (data) => alert(JSON.stringify(data)),
+            (err) => this.setState({ codeBuildResponse: JSON.stringify(err) }),
+            (data) => this.setState({ codeBuildResponse: JSON.stringify(data) }),
             this.state.accessKeyId,
             this.state.secretAccessKey,
             this.state.sessionToken,
@@ -62,14 +68,28 @@ class Form extends Component {
             this.state.sourceVersion,
             this.state.environmentVariablesOverride);
     }
+    saveToLocalStorage(){
+        if(this.state.saveToLocalStorage === "true"){
+            localStorage.setItem("accessKeyId", this.state.accessKeyId);
+            localStorage.setItem("secretAccessKey", this.state.secretAccessKey);
+            localStorage.setItem("sessionToken", this.state.sessionToken);
+        }else{
+            localStorage.setItem("accessKeyId", "");
+            localStorage.setItem("secretAccessKey", "");
+            localStorage.setItem("sessionToken", "");
+        }
+        localStorage.setItem("saveToLocalStorage", this.state.saveToLocalStorage);
+    }
     getLinkFromState(){
         let link = window.location.href.split("?")[0] + "?";
         link += this.convertParameterToQueryString("region",this.state.region);
         link += this.convertParameterToQueryString("projectName",this.state.projectName);
         link += this.convertParameterToQueryString("sourceVersion", this.state.sourceVersion);
         let environmentVariablesOverrideCopy = this.state.environmentVariablesOverride.filter((value,index) => value.hasOwnProperty("name") && value.name !== null  && value.name.length > 0);
-        link += this.convertParameterToQueryString("environmentVariablesOverride", JSON.stringify(environmentVariablesOverrideCopy));
-        return link;
+        if(environmentVariablesOverrideCopy.length > 0){
+            link += this.convertParameterToQueryString("environmentVariablesOverride", JSON.stringify(environmentVariablesOverrideCopy));
+        }
+        return link.substring(0, link.length - 1);
     }
     convertParameterToQueryString(parameterName, parameterValue){
         if(parameterValue !== null && parameterValue !== undefined && parameterValue.length > 0){
@@ -85,8 +105,13 @@ class Form extends Component {
                 let stateChange = this.state.environmentVariablesOverride;
                 stateChange.push({name:"",value:""});
                 this.setState({ environmentVariablesOverride: stateChange});
-            }}>Add Environment Variable</a>;
+            }}>Add Environment Variable Override</a>;
         }
+        let codeBuildResponse = "";
+        if(this.state.codeBuildResponse !== undefined){
+            codeBuildResponse = <fieldset><legend>CodeBuild Response</legend>{this.state.codeBuildResponse}</fieldset>;
+        }
+        this.saveToLocalStorage();
         return (
             <form className="Form" onSubmit={ () => false }>
                 <fieldset>
@@ -103,6 +128,12 @@ class Form extends Component {
                         name="sessionToken" 
                         value={this.state.sessionToken} 
                         onChange={(event) => this.setState({sessionToken: event.target.value})} />
+                    <div>{typeof(this.state.saveToLocalStorage) + ":checked:" + this.state.saveToLocalStorage + ":" + this.state.saveToLocalStorage === "true"}</div>
+                    <input
+                        name="saveToLocalStorage"
+                        type="checkbox"
+                        checked={ this.state.saveToLocalStorage === "true"}
+                        onChange={(event) => this.setState({saveToLocalStorage: event.target.checked ? "true" : "false" }) } /> Save to localStorage
                 </fieldset>
                 <fieldset>
                     <legend>Basic Code Build Parameters:</legend>
@@ -140,6 +171,7 @@ class Form extends Component {
                 </fieldset>
                 <SubmitButton title="Start Build" onClick={() => this.startBuild()} />
                 <div><a href={this.getLinkFromState()}>{this.getLinkFromState()}</a></div>
+                {codeBuildResponse}
                 <span style={{ color: "#C0C0C0" }} >
                     document.referrer to parse: <br/>
                     {"\"" + document.referrer + "\""}
