@@ -14,7 +14,7 @@ class Form extends Component {
             region: getParameterByName("region", window.location.href),
             projectName: getParameterByName("projectName", window.location.href),
             sourceVersion : getSourceVersion(window.location.href),
-            environmentVariables: JSON.parse(getParameterByName("environmentVariables", window.location.href) || "{}"),
+            environmentVariablesOverride: JSON.parse(getParameterByName("environmentVariablesOverride", window.location.href) || "[]"),
         };
     }
     onAccessKeyChange(value){
@@ -60,16 +60,15 @@ class Form extends Component {
             this.state.region,
             this.state.projectName,
             this.state.sourceVersion,
-            this.state.environmentVariables);
+            this.state.environmentVariablesOverride);
     }
     getLinkFromState(){
         let link = window.location.href.split("?")[0] + "?";
         link += this.convertParameterToQueryString("region",this.state.region);
         link += this.convertParameterToQueryString("projectName",this.state.projectName);
         link += this.convertParameterToQueryString("sourceVersion", this.state.sourceVersion);
-        let environmentVariablesCopy = this.state.environmentVariables;
-        delete environmentVariablesCopy[""];
-        link += this.convertParameterToQueryString("environmentVariables", JSON.stringify(environmentVariablesCopy));
+        let environmentVariablesOverrideCopy = this.state.environmentVariablesOverride.filter((value,index) => value.hasOwnProperty("name") && value.name !== null  && value.name.length > 0);
+        link += this.convertParameterToQueryString("environmentVariablesOverride", JSON.stringify(environmentVariablesOverrideCopy));
         return link;
     }
     convertParameterToQueryString(parameterName, parameterValue){
@@ -80,12 +79,12 @@ class Form extends Component {
         }
     }
     render(){
-        let addEnvironmentVariableButton = "";
-        if(!this.state.environmentVariables.hasOwnProperty("")){
-            addEnvironmentVariableButton = <a onClick={() => {
-                let stateChange = this.state.environmentVariables;
-                stateChange[""] = "";
-                this.setState({ environmentVariables: stateChange});
+        let addEnvironmentVariableOverrideButton = "";
+        if(!this.state.environmentVariablesOverride.some((element) => element.name === "")){
+            addEnvironmentVariableOverrideButton = <a onClick={() => {
+                let stateChange = this.state.environmentVariablesOverride;
+                stateChange.push({name:"",value:""});
+                this.setState({ environmentVariablesOverride: stateChange});
             }}>Add Environment Variable</a>;
         }
         return (
@@ -121,25 +120,23 @@ class Form extends Component {
                         onChange={(event) => this.setState({sourceVersion: event.target.value})} />
                 </fieldset>
                 <fieldset>
-                    <legend>Environment Variables:</legend>
-                    {Object.keys(this.state.environmentVariables).map((key, index) => 
+                    <legend>Environment Variables Override:</legend>
+                    {this.state.environmentVariablesOverride.map((value, index) => 
                         <EnvironmentVariable 
-                            name={key} 
-                            value={this.state.environmentVariables[key]} 
+                            name={value.name} 
+                            value={value.value} 
                             onNameChange={(event) => {
-                                let stateChange = this.state.environmentVariables;
-                                const currentValue = stateChange[key];
-                                delete stateChange[key];
-                                stateChange[event.target.value] = currentValue;
-                                this.setState({ environmentVariables: stateChange});
+                                let stateChange = this.state.environmentVariablesOverride;
+                                stateChange[index].name = event.target.value;
+                                this.setState({ environmentVariablesOverride: stateChange});
                             }}
                             onValueChange={(event) => {
-                                let stateChange = this.state.environmentVariables;
-                                stateChange[key] = event.target.value;
-                                this.setState({ environmentVariables: stateChange});
+                                let stateChange = this.state.environmentVariablesOverride;
+                                stateChange[index].value = event.target.value;
+                                this.setState({ environmentVariablesOverride: stateChange});
                             }} />
                         )}
-                    {addEnvironmentVariableButton}
+                    {addEnvironmentVariableOverrideButton}
                 </fieldset>
                 <SubmitButton title="Start Build" onClick={() => this.startBuild()} />
                 <div><a href={this.getLinkFromState()}>{this.getLinkFromState()}</a></div>

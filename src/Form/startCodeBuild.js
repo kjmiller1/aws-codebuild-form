@@ -17,11 +17,7 @@ export default function startCodeBuild(
     region,
     projectName, 
     sourceVersion,
-    environmentVariables){
-    const environmentVariablesOverride = 
-        Object.keys(environmentVariables).map(function(key) {
-        return {name: key, value: environmentVariables[key]};
-        });
+    environmentVariablesOverride){
     var codeBuild = new CodeBuild({
         apiVersion: '2016-10-06',
         accessKeyId: accessKeyId,
